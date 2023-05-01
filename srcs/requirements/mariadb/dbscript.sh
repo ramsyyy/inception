@@ -1,39 +1,32 @@
 #!/bin/bash
 
-#STARTING THE MYSQL SERVICE
 
-if [ -d "/var/lib/mysql/$MYSQL_DDB_NAME" ]
+/etc/init.d/mysql start
+if [ -d "/var/lib/mysql/$MYSQL_DATABASE" ]
 then
-	/usr/share/mysql/mysql.server start
-	echo "The DDB is already installed"	
+    echo "Database already installed"
 else
-
-	mysql_install_db --user=mysql --datadir=/var/lib/mysql
-
-	/usr/share/mysql/mysql.server start
-
-	chown mysql:mysql /usr/sbin/mysqld
-
-	# THE '%' ALLOW REMOTE CONNECTION TO ALL HOST, AND LOCALHOST ONLY FROM THE DDB MACHINE
-
-	# We delete the 'anonymous user' so you cant connect with no username
-	mysql -e "DELETE FROM mysql.user WHERE User=''"
-
-	mysql -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DDB_NAME;"
-
-	mysql -e "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
-
-	mysql -e "GRANT ALL PRIVILEGES ON $MYSQL_DDB_NAME.* TO '$MYSQL_USER'@'%';"
-
-	# We apply our changement before changing root password, otherwise the script wont be able to exec the remaining commands
-	mysql -e "FLUSH PRIVILEGES;"
-
-	# Then we change root password
-	mysqladmin -u root password $MYSQL_ROOT_PASSWORD
-
+    mysql_secure_installation <<_EOF_
+$MYSQL_ROOT_PASSWORD
+y
+$MYSQL_ROOT_PASSWORD
+$MYSQL_ROOT_PASSWORD
+y
+n
+y
+y
+_EOF_
+echo "GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';" | mysql -uroot
+echo "ALTER USER 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';" | mysql -uroot -p$MYSQL_ROOT_PASSWORD
+echo "FLUSH PRIVILEGES;" | mysql -uroot -p$MYSQL_ROOT_PASSWORD
+echo "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;" | mysql -uroot -p$MYSQL_ROOT_PASSWORD
+echo "GRANT ALL ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" | mysql -uroot -p$MYSQL_ROOT_PASSWORD
+echo "FLUSH PRIVILEGES;" | mysql -uroot -p$MYSQL_ROOT_PASSWORD
+mysql -uroot -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE < /usr/local/bin/wordpress_db.sql
+echo "Database created"
 
 fi
 
 mysqladmin -u root -p$MYSQL_ROOT_PASSWORD shutdown
 
-exec "mysqld_safe"
+exec "$@"

@@ -23,3 +23,5 @@ COPY dbscript.sh ./
 RUN chmod +x ./dbscript.sh
 
 ENTRYPOINT ["bash", "./dbscript.sh"]
+
+CMD ["mysqld"]  
