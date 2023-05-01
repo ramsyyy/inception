@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-/etc/init.d/mysql start
+mysqld
 if [ -d "/var/lib/mysql/$MYSQL_DATABASE" ]
 then
     echo "Database already installed"

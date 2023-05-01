@@ -38,7 +38,7 @@ services :
     volumes:
     - wordpress:/var/www/wordpress
     build:
-      context: requirements/nginx
+      context: requirements/wordpress
       dockerfile: Dockerfile
     depends_on :
     - mariadb
