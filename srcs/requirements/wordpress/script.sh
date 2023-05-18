@@ -1,7 +1,8 @@
 sleep 10
 
-wp core download --allow-root --path="/var/www/wordpress"
 
+wp core download --allow-root --path="/var/www/wordpress"
+#cd /var/www/wordpress; mv wp-config-sample.php wp-config.php
 
 wp config create --allow-root \
 		--dbname=$DATABASE_NAME \
@@ -29,6 +30,8 @@ wp user create	--allow-root\
 			--user_pass="$WP_PASS"\
 			--path="/var/www/wordpress"
 
+
 chmod -R 777 /var/www/wordpress
+
 
 php-fpm7.3 -F

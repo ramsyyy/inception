@@ -30,6 +30,15 @@ services :
     expose:
     - "3306"
     restart: always
+    environment:
+      - MYSQL_DATABASE="$DATABASE_NAME"
+      - USERNAME="$USERNAME"
+      - PASSWORD="$PASSWORD"
+      - MYSQL_USER="$ADMIN_USER"
+      - MYSQL_ROOT_PASSWORD="$ADMIN_PASS"
+      - DOMAIN_NAME="$DOMAIN_NAME"
+      - WP_USER="$WP_USER"
+      - WP_PASS="$WP_PASS"
   
   wordpress:
     container_name: wordpress
@@ -43,7 +52,18 @@ services :
     depends_on :
     - mariadb
     restart: always
-    
+    env_file: .env
+    environment:
+      - USERNAME="$USERNAME"
+      - DATABASE_NAME="$DATABASE_NAME"
+      - PASSWORD="$PASSWORD"
+      - ADMIN_USER="$ADMIN_USER"
+      - ADMIN_PASS="$ADMIN_PASS"
+      - DOMAIN_NAME="$DOMAIN_NAME"
+      - WP_USER="$WP_USER"
+      - WP_PASS="$WP_PASS"
+
+
 volumes:
   wordpress:
     driver : local
