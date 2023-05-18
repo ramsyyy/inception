@@ -5,7 +5,7 @@ RUN apt install -y nginx
 RUN apt install -y openssl
 
 RUN openssl req -x509 -nodes -newkey rsa:2048 -keyout /etc/ssl/private/private-key.pem -out /etc/ssl/certs/certificate.pem -days 365 -subj "/C=FR/ST=Paris/L=Paris/O=42"
-# RUN mkdir -p /var/www/html/wordpress && chmod 777 /var/www/html/wordpress
+RUN mkdir -p /var/www/html/wordpress && chmod 777 /var/www/html/wordpress
 
 EXPOSE 443
 
