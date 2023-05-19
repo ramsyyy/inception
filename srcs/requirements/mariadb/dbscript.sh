@@ -1,40 +1,33 @@
-#!/bin/bash
 
+#!/bin/sh
 
-mysqld &
-PID=$?
-sleep 1
-
-if [ -d "/var/lib/mysql/$MYSQL_DATABASE" ]
+if [ ! -f "$PROTECT_FILE" ]
 then
-    echo "Database already installed"
+	#setup launch of mysql
+	mkdir -p /run/mysqld
+	chown -R mysql:mysql /run/mysqld
+
+	#launch mysql in back ground 
+	mysqld &
+	while !(mysqladmin ping > /dev/null)
+	do
+		echo "Waiting for database to be ready..." 
+	    sleep 5
+	done
+	echo "Database is ready"
+
+
+	# setup database in mysql
+	#mysql -uroot --skip-password -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
+	mysql -uroot -p$DB_ROOT -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$DB_ROOT';"
+	mysql -uroot -p$DB_ROOT -e "CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED BY '$DB_PASS';"
+	mysql -uroot -p$DB_ROOT -e "GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'%' IDENTIFIED BY '$DB_PASS';"
+	mysql -uroot -p$DB_ROOT -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
+	mysql -uroot -p$DB_ROOT -e "FLUSH PRIVILEGES;"
+
+	mysqladmin -uroot -p$DB_ROOT shutdown
 else
-    mysql_secure_installation <<_EOF_
-$MYSQL_ROOT_PASSWORD
-y
-$MYSQL_ROOT_PASSWORD
-$MYSQL_ROOT_PASSWORD
-y
-n
-y
-y
-_EOF_
-echo "ALTER USER 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';" | mysql -uroot
-echo "FLUSH PRIVILEGES;" | mysql -uroot -p$MYSQL_ROOT_PASSWORD
-echo "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;" | mysql -uroot -p$MYSQL_ROOT_PASSWORD
-#echo "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"|  mysql -uroot -p$MYSQL_ROOT_PASSWORD
-#echo "GRANT ALL ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" | mysql -uroot -p$MYSQL_ROOT_PASSWORD
-#echo "FLUSH PRIVILEGES;" | mysql -uroot -p$MYSQL_ROOT_PASSWORD
-##mysql -uroot -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE < /usr/local/bin/wordpress_db.sql
-#echo "Database created"
-#
-#fi
-#
-#mysqladmin -u root -p$MYSQL_ROOT_PASSWORD shutdown
+	echo "Database already created"
+fi
 
-#echo "GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';" | mysql -uroot
-#exec "$@"
-
-kill -9 $PID
-
-exec mysqld
+exec mysqld 

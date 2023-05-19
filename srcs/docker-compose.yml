@@ -3,6 +3,7 @@ version: "3.7"
 services :
   nginx:
     container_name: nginx
+    image: nginx
     networks:
     - inception
     volumes:
@@ -19,6 +20,7 @@ services :
 
   mariadb:
     container_name: mariadb
+    image: mariadb
     networks:
     - inception
     build:
@@ -31,18 +33,14 @@ services :
     - "3306"
     restart: always
     environment:
-      - MYSQL_DATABASE=$DATABASE_NAME
-      - USERNAME=$USERNAME
-      - PASSWORD=$PASSWORD
-      - MYSQL_USER=$ADMIN_USER
-      - MYSQL_ROOT_PASSWORD=$ADMIN_PASS
-      - MYSQL_PASSWORD=$ADMIN_PASS
-      - DOMAIN_NAME=$DOMAIN_NAME
-      - WP_USER=$WP_USER
-      - WP_PASS=$WP_PASS
-
+      - DB_NAME=$DB_NAME
+      - DB_USER=$DB_USER
+      - DB_PASS=$DB_PASS
+      - DB_ROOT=$DB_ROOT
+  
   wordpress:
     container_name: wordpress
+    image: wordpress
     networks: 
     - inception
     volumes:
@@ -55,27 +53,28 @@ services :
     restart: always
     env_file: .env
     environment:
-      - USERNAME="$USERNAME"
-      - DATABASE_NAME="$DATABASE_NAME"
-      - PASSWORD="$PASSWORD"
-      - ADMIN_USER="$ADMIN_USER"
-      - ADMIN_PASS="$ADMIN_PASS"
-      - DOMAIN_NAME="$DOMAIN_NAME"
-      - WP_USER="$WP_USER"
-      - WP_PASS="$WP_PASS"
+      - DB_NAME=$DB_NAME
+      - DB_USER=$DB_USER
+      - DB_PASS=$DB_PASS
+      - DB_ROOT=$DB_ROOT
+      - ADMIN_USER=$ADMIN_USER
+      - ADMIN_PASS=$ADMIN_PASS
+      - DOMAINE_NAME=$DOMAINE_NAME
+      - WP_USER=$WP_USER
+      - WP_PASS=$WP_PASS
 
 volumes:
   wordpress:
     driver : local
     driver_opts:
       type: none
-      device: /home/ramsy/data/wordpress
+      device: /home/raaga/data/wordpress
       o: bind 
   mariadb:
     driver: local
     driver_opts:
       type: none
-      device: /home/ramsy/data/mariadb
+      device: /home/raaga/data/mariadb
       o: bind
 
 networks:
