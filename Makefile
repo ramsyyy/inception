@@ -10,4 +10,3 @@ stop:
 
 fclean:  stop
 	sudo docker system prune -af
-	sudo docker volume rm -f $$(docker volume ls -q)	
