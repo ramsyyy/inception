@@ -1,12 +1,13 @@
 all:
 	#mv ../.env ./srcs/
-	mkdir -p /home/raaga/data/wordpress
-	mkdir -p /home/raaga/data/mariadb
+	
+	mkdir -p ${HOME}/data/wordpress
+	mkdir -p ${HOME}/data/mariadb
 	sudo docker-compose -f ./srcs/docker-compose.yml up -d --build
 
 stop:
 	sudo docker-compose -f ./srcs/docker-compose.yml down
-	sudo rm -rf /home/raaga/data/*
+	rm -rf ${HOME}/data
 
 fclean:  stop
 	sudo docker system prune -af

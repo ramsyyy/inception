@@ -28,7 +28,7 @@ services :
       dockerfile: Dockerfile
     env_file: .env
     volumes:
-    - mariadb:/var/lib/mysql
+      - mariadb:/var/lib/mysql
     expose:
     - "3306"
     restart: always
@@ -44,7 +44,7 @@ services :
     networks: 
     - inception
     volumes:
-    - wordpress:/var/www/wordpress
+      - wordpress:/var/www/wordpress
     build:
       context: requirements/wordpress
       dockerfile: Dockerfile
@@ -68,13 +68,13 @@ volumes:
     driver : local
     driver_opts:
       type: none
-      device: /home/raaga/data/wordpress
+      device: ${HOME}/data/wordpress
       o: bind 
   mariadb:
     driver: local
     driver_opts:
       type: none
-      device: /home/raaga/data/mariadb
+      device: ${HOME}/data/mariadb
       o: bind
 
 networks:
